@@ -1,0 +1,67 @@
+<!-- pages/configuracoes.html -->
+<div class="page-content">
+    <h1>Configurações</h1>
+
+    <!-- Seção de Perfil do Usuário (mantida inalterada) -->
+    <div class="settings-section">
+        <h2>Perfil do Usuário</h2>
+        <div class="form-group">
+            <label for="username-input">Nome de Usuário:</label>
+            <input type="text" id="username-input" placeholder="Seu nome de usuário">
+            <button id="save-username-btn" class="btn-primary">Salvar Nome</button>
+        </div>
+        <p>Seu ID de Usuário: <span id="user-id-display"></span></p>
+        <div class="form-group">
+            <label for="partner-id-input">ID do Parceiro:</label>
+            <input type="text" id="partner-id-input" placeholder="ID do seu parceiro">
+            <button id="save-partner-id-btn" class="btn-primary">Vincular Parceiro</button>
+        </div>
+        <p>ID do Parceiro Vinculado: <span id="partner-id-display"></span></p>
+    </div>
+
+    <!-- NOVA SEÇÃO: Gerenciamento de Categorias -->
+    <div class="settings-section">
+        <h2>Gerenciamento de Categorias</h2>
+
+        <button id="add-category-btn" class="btn-primary">Adicionar Categoria</button>
+
+        <h3>Minhas Categorias</h3>
+        <div id="categories-list" class="data-list">
+            <!-- Categorias serão carregadas aqui pelo JavaScript -->
+            <p>Carregando categorias...</p>
+        </div>
+    </div>
+
+    <!-- Modal de Adição/Edição de Categoria -->
+    <div id="category-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2 id="category-modal-title">Nova Categoria</h2>
+            <form id="category-modal-form">
+                <input type="hidden" id="category-id">
+                <div class="form-group">
+                    <label for="category-name">Nome da Categoria:</label>
+                    <input type="text" id="category-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="category-type">Tipo:</label>
+                    <select id="category-type" required>
+                        <option value="entrada">Entrada</option>
+                        <option value="saida">Saída</option>
+                    </select>
+                </div>
+                <!-- NOVO: Checkbox para Categoria Geral -->
+                <div class="form-group">
+                    <input type="checkbox" id="category-is-general">
+                    <label for="category-is-general">Categoria Geral (visível para o parceiro)</label>
+                </div>
+                
+                <div class="form-buttons">
+                    <button type="submit" class="btn-primary">Salvar Categoria</button>
+                    <button type="button" id="delete-category-btn" class="btn-danger" style="display: none;">Excluir Categoria</button>
+                    <button type="button" id="cancel-category-edit-btn" class="btn-secondary">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

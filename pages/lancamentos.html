@@ -1,0 +1,84 @@
+<!-- pages/lancamentos.html -->
+<div class="page-content">
+    <h2>Lançamentos Individuais</h2>
+
+    <div class="month-navigation">
+        <button id="prev-month">&lt; Mês Anterior</button>
+        <span id="current-month-year"></span>
+        <button id="next-month">Próximo Mês &gt;</button>
+    </div>
+
+    <div class="transaction-actions">
+        <button id="add-entry-btn" class="btn-action btn-entry">Nova Entrada</button>
+        <button id="add-exit-btn" class="btn-action btn-exit">Nova Saída</button>
+    </div>
+
+    <div class="transactions-list-container">
+        <h3>Lista de Lançamentos</h3>
+        <div id="transactions-list" class="transactions-list">
+            <!-- Lançamentos serão carregados aqui -->
+            <p class="no-transactions-message">Nenhum lançamento encontrado para este mês.</p>
+        </div>
+    </div>
+
+    <!-- Modal para Adicionar/Editar Lançamento -->
+    <div id="transaction-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h3 id="modal-title">Novo Lançamento</h3>
+            <form id="transaction-form">
+                <input type="hidden" id="transaction-id">
+                <input type="hidden" id="transaction-current-type">
+
+                <div class="input-group">
+                    <label for="transaction-description">Descrição:</label>
+                    <input type="text" id="transaction-description" required>
+                </div>
+                <div class="input-group">
+                    <label for="transaction-value">Valor:</label>
+                    <input type="number" id="transaction-value" step="0.01" required>
+                </div>
+                <div class="input-group">
+                    <label for="transaction-date">Data:</label>
+                    <input type="date" id="transaction-date" required>
+                </div>
+                <div class="input-group">
+                    <label for="transaction-category">Categoria:</label>
+                    <select id="transaction-category">
+                        <!-- Categorias serão carregadas aqui via JS -->
+                    </select>
+                </div>
+                <div class="input-group" id="payment-method-group">
+                    <label for="transaction-payment-method">Forma de Pagamento:</label>
+                    <select id="transaction-payment-method">
+                        <option value="Dinheiro">Dinheiro</option>
+                        <option value="Debito">Débito</option>
+                        <option value="Credito">Crédito</option>
+                        <option value="Pix">Pix</option>
+                        <option value="Transferencia">Transferência</option>
+                    </select>
+                </div>
+                <!-- NOVO: Campo para Seleção de Cartão de Crédito -->
+                <div class="input-group" id="card-select-group" style="display: none;">
+                    <label for="transaction-card-select">Selecionar Cartão:</label>
+                    <select id="transaction-card-select">
+                        <option value="">Selecione um Cartão</option>
+                        <!-- Cartões serão carregados aqui via JS -->
+                    </select>
+                </div>
+                <!-- FIM NOVO: Campo para Seleção de Cartão de Crédito -->
+                <div class="input-group" id="installments-group" style="display: none;">
+                    <label for="transaction-installments">Número de Parcelas:</label>
+                    <input type="number" id="transaction-installments" min="1" value="1">
+                </div>
+                <div class="input-group" id="recurrent-group">
+                    <input type="checkbox" id="transaction-recurrent">
+                    <label for="transaction-recurrent">Lançamento Recorrente (Mensalmente)</label>
+                </div>
+                <div class="form-buttons">
+                    <button type="submit" class="btn-primary">Salvar Lançamento</button>
+                    <button type="button" id="delete-transaction-btn" class="btn-danger" style="display: none;">Excluir Lançamento</button>
+                </div>
+        </div>
+    </div>
+</div>

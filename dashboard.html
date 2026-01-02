@@ -1,0 +1,88 @@
+<!-- pages/dashboard.html -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Controle Financeiro</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+</head>
+<body>
+    <div class="main-layout">
+        <aside class="sidebar">
+            <h2>Menu</h2>
+            <ul>
+                <li><a href="#" id="menu-dashboard">Inicial (Dashboard)</a></li>
+                <li><a href="#" id="menu-lancamentos">Lançamentos (Individual)</a></li>
+                <li><a href="#" id="menu-conjunto">Conjunto</a></li>
+                <li><a href="#" id="menu-cartao">Cartão de Crédito</a></li>
+                <li><a href="#" id="menu-configuracoes">Configurações</a></li>
+                <li><button id="logout-button">Sair</button></li>
+            </ul>
+        </aside>
+         <main class="content-area" id="main-content-area">
+            <h1>Dashboard Financeiro</h1>
+            <p class="welcome-message">Bem-vindo(a), <span id="dashboard-user-name"></span>!</p>
+
+            <!-- NOVO: Filtros de Período para o Dashboard -->
+            <div class="dashboard-filters">
+                <label for="period-filter">Período:</label>
+                <select id="period-filter">
+                    <option value="current_month">Mês Atual</option>
+                    <option value="last_3_months">Últimos 3 Meses</option>
+                    <option value="current_year">Ano Atual</option>
+                    <option value="custom">Personalizado</option>
+                </select>
+                <input type="date" id="start-date" style="display: none;">
+                <input type="date" id="end-date" style="display: none;">
+                <button id="apply-filter-btn" style="display: none;">Aplicar Filtro</button>
+            </div>
+
+
+            <div class="financial-summary">
+                <div class="summary-card">
+                    <h3>Saldo Atual</h3>
+                    <p id="saldo-atual" class="value">R$ 0,00</p>
+                </div>
+                <div class="summary-card">
+                    <h3>Entradas do Período</h3>
+                    <p id="total-entradas" class="value">R$ 0,00</p>
+                </div>
+                <div class="summary-card">
+                    <h3>Saídas do Período</h3>
+                    <p id="total-saidas" class="value">R$ 0,00</p>
+                </div>
+                <div class="summary-card">
+                    <h3>Resultado do Período</h3>
+                    <p id="resultado-periodo" class="value">R$ 0,00</p>
+                </div>
+            </div>
+
+            <div class="charts-area">
+                <h2>Visualizações Gráficas</h2>
+                <div id="chart-fluxo-financeiro" class="chart-container">
+                    <!-- Gráfico de Fluxo Financeiro será inserido aqui -->
+                </div>
+                <!-- NOVO: Placeholder para o Gráfico de Saldo Histórico -->
+                <div id="chart-saldo-historico" class="chart-container">
+                    <!-- Gráfico de Saldo Histórico será inserido aqui -->
+                </div>
+                <div id="chart-gastos-categoria" class="chart-container">
+                    <!-- Gráfico de Gastos por Categoria será inserido aqui -->
+                </div>
+                <!-- NOVO: Placeholder para o Gráfico de Entradas por Categoria -->
+                <div id="chart-entradas-categoria" class="chart-container">
+                    <!-- Gráfico de Entradas por Categoria será inserido aqui -->
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module" src="js/supabase.js"></script>
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
