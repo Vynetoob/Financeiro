@@ -9,7 +9,6 @@
     --secondary-color: #6c757d; /* Cinza secundário */
     --text-color: #333; /* Cor do texto principal */
     --background-color: #f0f2f5; /* Fundo geral da aplicação */
-    --background-light: #f9fbfd; /* Fundo para áreas de conteúdo */
     --border-color: #ddd; /* Cor de borda padrão */
     --positive-color: #28a745; /* Verde para valores positivos/sucesso */
     --negative-color: #dc3545; /* Vermelho para valores negativos/erro */
@@ -17,17 +16,20 @@
     --info-color: #17a2b8; /* Azul ciano para informações */
     --shadow-color: rgba(0, 0, 0, 0.1); /* Sombra padrão */
     --negative-color-dark: #c82333; /* Tom mais escuro para hover de botão de logout */
+
+    /* AJUSTES CRÍTICOS PARA O MODAL E INPUTS NO MODO CLARO */
+    --secondary-background-color: #ffffff; /* Fundo do modal, sidebar e cards - branco puro */
+    --background-light: #f9fbfd; /* Fundo para áreas de conteúdo (inputs, cards internos) - quase branco */
 }
 
 /* Cores para o Modo Escuro */
 body.dark-mode {
-    --primary-color: #66b0ff; /* Azul principal mais claro para contraste */
+    --primary-color: #66bb6a; /* Azul principal mais claro para contraste */
     --primary-color-dark: #007bff; /* Azul mais escuro */
     --primary-color-light: #0056b3; /* Azul mais claro */
     --secondary-color: #a0a0a0; /* Cinza secundário mais claro */
     --text-color: #e0e0e0; /* Cor do texto principal */
     --background-color: #1a1a2e; /* Fundo geral da aplicação */
-    --background-light: #16213e; /* Fundo para áreas de conteúdo */
     --border-color: #3a3a5a; /* Cor de borda padrão */
     --positive-color: #4CAF50; /* Verde para valores positivos/sucesso */
     --negative-color: #e74c3c; /* Vermelho para valores negativos/erro */
@@ -35,6 +37,10 @@ body.dark-mode {
     --info-color: #3498db; /* Azul ciano para informações */
     --shadow-color: rgba(0, 0, 0, 0.4); /* Sombra mais escura */
     --negative-color-dark: #c0392b; /* Tom mais escuro para hover de botão de logout */
+
+    /* AJUSTES CRÍTICOS PARA O MODAL E INPUTS NO MODO ESCURO */
+    --secondary-background-color: #212b3b; /* Fundo do modal, sidebar e cards - um tom de azul escuro */
+    --background-light: #2c3e50; /* Fundo para inputs e elementos internos - um tom de azul escuro mais claro */
 }
 
 /* ==========================================================================
@@ -397,26 +403,28 @@ button:not(.btn-action):not(.btn-small):not(.sidebar button#logout-button):not(.
 .modal {
     display: none;
     position: fixed;
-    z-index: 1000;
+    z-index: 1000; /* Z-index para o overlay */
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: var(--shadow-color); /* Usando variável para o overlay */
+    background-color: var(--shadow-color); /* Overlay semi-transparente */
     justify-content: center;
     align-items: center;
 }
 
 .modal-content {
-    background-color: var(--secondary-background-color); /* Usando variável */
+    background-color: var(--secondary-background-color); /* Fundo sólido para o conteúdo do modal */
     margin: auto;
     padding: 30px;
     border-radius: 10px;
-    box-shadow: 0 5px 15px var(--shadow-color); /* Usando variável */
+    box-shadow: 0 5px 15px var(--shadow-color);
     width: 90%;
     max-width: 500px;
     position: relative;
+    z-index: 1001; /* Garante que o conteúdo do modal esteja acima do overlay */
+    opacity: 1; /* Garante que não haja transparência acidental */
 }
 
 .modal-content.large-modal-content {
@@ -455,7 +463,7 @@ body.auth-page {
     min-height: 100vh;
 }
 
-.container { /* Renomeado de .container para .login-container */
+.login-container { /* Renomeado de .container para .login-container */
     background-color: var(--background-light); /* Fundo para áreas de conteúdo, mais claro/escuro */
     padding: 40px;
     border-radius: 10px; /* Alterado para 10px conforme seu pedido */

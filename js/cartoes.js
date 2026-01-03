@@ -1,5 +1,6 @@
 // js/cartoes.js
 import { supabase } from './supabase.js';
+import { formatCurrency, showNotification } from './main.js'; // Importa formatCurrency e showNotification
 
 let currentUserId = null;
 
@@ -25,15 +26,7 @@ let cardTransactionsListElement;
    UTILIDADES
 ========================= */
 
-// Formata valor em moeda
-function formatCurrency(value) {
-    return new Intl.NumberFormat('pt-BR', {
-        style: 'currency',
-        currency: 'BRL',
-    }).format(value);
-}
-
-// ✅ FORMATA DATA LOCAL (SEM UTC / SEM BUG)
+// ✅ FORMATA DATA LOCAL (SEM UTC / SEM BUG) - REINTRODUZIDA
 function formatDateLocal(date) {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -49,7 +42,10 @@ function initializeCartoesDOM() {
     cardsListElement = document.getElementById('cards-list');
     addCardButton = document.getElementById('add-card-btn');
     cardModal = document.getElementById('card-modal');
-    closeButtonCardModal = cardModal.querySelector('.close-button');
+    // Verifica se cardModal existe antes de tentar selecionar o closeButtonCardModal
+    if (cardModal) {
+        closeButtonCardModal = cardModal.querySelector('.close-button');
+    }
     cardForm = document.getElementById('card-form');
     cardModalTitle = document.getElementById('card-modal-title');
     cardIdInput = document.getElementById('card-id');
@@ -60,22 +56,28 @@ function initializeCartoesDOM() {
     deleteCardButton = document.getElementById('delete-card-btn');
 
     cardTransactionsModal = document.getElementById('card-transactions-modal');
-    closeButtonCardTransactionsModal = cardTransactionsModal.querySelector('.close-button-card-transactions');
+    // Verifica se cardTransactionsModal existe antes de tentar selecionar o closeButtonCardTransactionsModal
+    if (cardTransactionsModal) {
+        // Corrigido para buscar a classe correta do botão de fechar
+        closeButtonCardTransactionsModal = cardTransactionsModal.querySelector('.close-button'); 
+    }
     cardTransactionsModalTitle = document.getElementById('card-transactions-modal-title');
     cardTransactionsListElement = document.getElementById('card-transactions-list');
 
     // Event Listeners
-    addCardButton.addEventListener('click', () => openCardModal());
-    closeButtonCardModal.addEventListener('click', closeCardModal);
-    cardForm.addEventListener('submit', handleCardSubmit);
-    deleteCardButton.addEventListener('click', deleteCard);
+    if (addCardButton) addCardButton.addEventListener('click', () => openCardModal());
+    if (closeButtonCardModal) closeButtonCardModal.addEventListener('click', closeCardModal);
+    if (cardForm) cardForm.addEventListener('submit', handleCardSubmit);
+    if (deleteCardButton) deleteCardButton.addEventListener('click', deleteCard);
 
-    closeButtonCardTransactionsModal.addEventListener('click', closeCardTransactionsModal);
+    if (closeButtonCardTransactionsModal) closeButtonCardTransactionsModal.addEventListener('click', closeCardTransactionsModal);
+    
+    // Adiciona event listeners para fechar modais ao clicar fora, com verificação de existência
     window.addEventListener('click', (event) => {
-        if (event.target == cardModal) {
+        if (cardModal && event.target == cardModal) {
             closeCardModal();
         }
-        if (event.target == cardTransactionsModal) {
+        if (cardTransactionsModal && event.target == cardTransactionsModal) {
             closeCardTransactionsModal();
         }
     });
@@ -86,33 +88,33 @@ function initializeCartoesDOM() {
 ========================= */
 
 async function openCardModal(card = null) {
-    cardForm.reset();
-    cardIdInput.value = '';
-    deleteCardButton.style.display = 'none';
+    if (cardForm) cardForm.reset();
+    if (cardIdInput) cardIdInput.value = '';
+    if (deleteCardButton) deleteCardButton.style.display = 'none';
 
-    cardModalTitle.textContent = card ? 'Editar Cartão' : 'Novo Cartão';
+    if (cardModalTitle) cardModalTitle.textContent = card ? 'Editar Cartão' : 'Novo Cartão';
 
     if (card) {
-        cardIdInput.value = card.id;
-        cardNameInput.value = card.nome_cartao;
-        cardLimitInput.value = card.limite_total;
-        cardClosingDayInput.value = card.dia_fechamento_fatura;
-        cardDueDayInput.value = card.dia_vencimento_fatura;
-        deleteCardButton.style.display = 'block';
+        if (cardIdInput) cardIdInput.value = card.id;
+        if (cardNameInput) cardNameInput.value = card.nome_cartao;
+        if (cardLimitInput) cardLimitInput.value = card.limite_total;
+        if (cardClosingDayInput) cardClosingDayInput.value = card.dia_fechamento_fatura;
+        if (cardDueDayInput) cardDueDayInput.value = card.dia_vencimento_fatura;
+        if (deleteCardButton) deleteCardButton.style.display = 'block';
     }
 
-    cardModal.style.display = 'flex';
+    if (cardModal) cardModal.style.display = 'flex';
 }
 
 function closeCardModal() {
-    cardModal.style.display = 'none';
+    if (cardModal) cardModal.style.display = 'none';
 }
 
 async function handleCardSubmit(event) {
     event.preventDefault();
 
     if (!currentUserId) {
-        alert('Usuário não identificado.');
+        showNotification('Usuário não identificado.', 'error');
         return;
     }
 
@@ -141,9 +143,9 @@ async function handleCardSubmit(event) {
 
     if (error) {
         console.error('Erro ao salvar cartão:', error.message);
-        alert(`Erro ao salvar cartão: ${error.message}. Tente novamente.`);
+        showNotification(`Erro ao salvar cartão: ${error.message}. Tente novamente.`, 'error');
     } else {
-        alert('Cartão salvo com sucesso!');
+        showNotification('Cartão salvo com sucesso!', 'success');
         closeCardModal();
         await renderCards();
     }
@@ -165,9 +167,9 @@ async function deleteCard() {
 
     if (error) {
         console.error('Erro ao excluir cartão:', error.message);
-        alert(`Erro ao excluir cartão: ${error.message}. Tente novamente.`);
+        showNotification(`Erro ao excluir cartão: ${error.message}. Tente novamente.`, 'error');
     } else {
-        alert('Cartão excluído com sucesso!');
+        showNotification('Cartão excluído com sucesso!', 'success');
         closeCardModal();
         await renderCards();
     }
@@ -179,6 +181,11 @@ async function deleteCard() {
 
 async function openCardTransactionsModal(card) {
     if (!currentUserId) return;
+    if (!cardTransactionsModalTitle || !cardTransactionsListElement || !cardTransactionsModal) {
+        console.error("Elementos do modal de transações do cartão não encontrados.");
+        showNotification("Erro: Elementos da tela de transações do cartão não carregados.", "error");
+        return;
+    }
 
     cardTransactionsModalTitle.textContent = `Lançamentos de ${card.nome_cartao}`;
     cardTransactionsListElement.innerHTML = `<p class="no-transactions-message">Carregando lançamentos...</p>`;
@@ -189,19 +196,19 @@ async function openCardTransactionsModal(card) {
     const currentDay = today.getDate();
     let startMonth = today.getMonth();
     let startYear = today.getFullYear();
-    let endMonth = today.getMonth();
-    let endYear = today.getFullYear();
 
+    // Calcula o período da fatura atual
     if (currentDay > card.dia_fechamento_fatura) {
         invoiceStartDate = new Date(startYear, startMonth, card.dia_fechamento_fatura + 1);
-        invoiceEndDate = new Date(endYear, endMonth + 1, card.dia_fechamento_fatura);
-        invoiceDueDate = new Date(endYear, endMonth + 1, card.dia_vencimento_fatura);
+        invoiceEndDate = new Date(startYear, startMonth + 1, card.dia_fechamento_fatura);
+        invoiceDueDate = new Date(startYear, startMonth + 1, card.dia_vencimento_fatura);
     } else {
         invoiceStartDate = new Date(startYear, startMonth - 1, card.dia_fechamento_fatura + 1);
-        invoiceEndDate = new Date(endYear, endMonth, card.dia_fechamento_fatura);
-        invoiceDueDate = new Date(endYear, endMonth, card.dia_vencimento_fatura);
+        invoiceEndDate = new Date(startYear, startMonth, card.dia_fechamento_fatura);
+        invoiceDueDate = new Date(startYear, startMonth, card.dia_vencimento_fatura);
     }
 
+    // Ajusta as datas para não excederem o último dia do mês
     invoiceStartDate.setDate(Math.min(invoiceStartDate.getDate(), new Date(invoiceStartDate.getFullYear(), invoiceStartDate.getMonth() + 1, 0).getDate()));
     invoiceEndDate.setDate(Math.min(invoiceEndDate.getDate(), new Date(invoiceEndDate.getFullYear(), invoiceEndDate.getMonth() + 1, 0).getDate()));
     invoiceDueDate.setDate(Math.min(invoiceDueDate.getDate(), new Date(invoiceDueDate.getFullYear(), invoiceDueDate.getMonth() + 1, 0).getDate()));
@@ -233,10 +240,11 @@ async function openCardTransactionsModal(card) {
         }
     });
 
-    // --- Cálculo do Limite Comprometido (para o card geral) ---
+    // --- Cálculo do Limite Comprometido (para o card geral no modal) ---
+    // Busca TODOS os lançamentos pendentes para o cartão, incluindo recorrentes e parcelados
     const { data: allPendingTransactions, error: allPendingError } = await supabase
         .from('lancamentos')
-        .select('valor')
+        .select('valor, data, is_recorrente_master, recorrente_id, total_parcelas') // Adicionado campos de recorrência/parcelamento
         .eq('user_id', currentUserId)
         .eq('tipo', 'saida')
         .eq('forma_pagamento', 'Credito')
@@ -248,7 +256,21 @@ async function openCardTransactionsModal(card) {
         console.error('Erro ao buscar todos os lançamentos pendentes para limite:', allPendingError.message);
     } else {
         allPendingTransactions.forEach(t => {
-            totalComprometido += t.valor;
+            // Se for parcelado, sempre inclui
+            if (t.total_parcelas > 1) {
+                totalComprometido += t.valor;
+            }
+            // Se for recorrente (e não parcelado), inclui APENAS se a data cair na fatura atual
+            else if (t.recorrente_id || t.is_recorrente_master) {
+                const transactionDate = new Date(t.data);
+                if (transactionDate >= invoiceStartDate && transactionDate <= invoiceEndDate) {
+                    totalComprometido += t.valor;
+                }
+            }
+            // Se for um lançamento único (não recorrente, não parcelado), sempre inclui
+            else {
+                totalComprometido += t.valor;
+            }
         });
     }
     const limiteDisponivel = card.limite_total - totalComprometido;
@@ -263,16 +285,19 @@ async function openCardTransactionsModal(card) {
         let futureInvoiceStartDate, futureInvoiceEndDate, futureInvoiceDueDate;
 
         // Calcula o período para a próxima fatura
+        // Ajusta o mês de referência para o cálculo da fatura futura
+        const refDateForFutureInvoice = new Date(today.getFullYear(), today.getMonth() + i);
+
         if (currentDay > card.dia_fechamento_fatura) {
-            // Se a fatura atual já fechou, a próxima começa no mês atual
-            futureInvoiceStartDate = new Date(today.getFullYear(), today.getMonth() + i, card.dia_fechamento_fatura + 1);
-            futureInvoiceEndDate = new Date(today.getFullYear(), today.getMonth() + i + 1, card.dia_fechamento_fatura);
-            futureInvoiceDueDate = new Date(today.getFullYear(), today.getMonth() + i + 1, card.dia_vencimento_fatura);
+            // Se a fatura atual já fechou, a próxima começa no mês atual + i
+            futureInvoiceStartDate = new Date(refDateForFutureInvoice.getFullYear(), refDateForFutureInvoice.getMonth(), card.dia_fechamento_fatura + 1);
+            futureInvoiceEndDate = new Date(refDateForFutureInvoice.getFullYear(), refDateForFutureInvoice.getMonth() + 1, card.dia_fechamento_fatura);
+            futureInvoiceDueDate = new Date(refDateForFutureInvoice.getFullYear(), refDateForFutureInvoice.getMonth() + 1, card.dia_vencimento_fatura);
         } else {
-            // Se a fatura atual ainda vai fechar, a próxima começa no mês atual
-            futureInvoiceStartDate = new Date(today.getFullYear(), today.getMonth() + i - 1, card.dia_fechamento_fatura + 1);
-            futureInvoiceEndDate = new Date(today.getFullYear(), today.getMonth() + i, card.dia_fechamento_fatura);
-            futureInvoiceDueDate = new Date(today.getFullYear(), today.getMonth() + i, card.dia_vencimento_fatura);
+            // Se a fatura atual ainda vai fechar, a próxima começa no mês atual + i - 1
+            futureInvoiceStartDate = new Date(refDateForFutureInvoice.getFullYear(), refDateForFutureInvoice.getMonth() - 1, card.dia_fechamento_fatura + 1);
+            futureInvoiceEndDate = new Date(refDateForFutureInvoice.getFullYear(), refDateForFutureInvoice.getMonth(), card.dia_fechamento_fatura);
+            futureInvoiceDueDate = new Date(refDateForFutureInvoice.getFullYear(), refDateForFutureInvoice.getMonth(), card.dia_vencimento_fatura);
         }
 
         // Ajusta para o último dia do mês, se necessário
@@ -337,10 +362,10 @@ async function openCardTransactionsModal(card) {
     cardTransactionsListElement.innerHTML = headerHtml;
 
 
-    if (currentInvoiceTransactions.length === 0) { // MUDANÇA: Usa currentInvoiceTransactions
+    if (currentInvoiceTransactions.length === 0) {
         cardTransactionsListElement.innerHTML += `<p class="no-transactions-message">Nenhum lançamento de crédito encontrado para este cartão no período da fatura atual.</p>`;
     } else {
-        currentInvoiceTransactions.forEach(transaction => { // MUDANÇA: Itera sobre currentInvoiceTransactions
+        currentInvoiceTransactions.forEach(transaction => {
             const [year, month, day] = transaction.data.split('-').map(Number);
             const displayDate = new Date(year, month - 1, day);
 
@@ -407,7 +432,7 @@ async function openCardTransactionsModal(card) {
 
             if (updateError) {
                 console.error('Erro ao alterar status de pagamento:', updateError.message);
-                alert('Erro ao alterar status. Tente novamente.');
+                showNotification('Erro ao alterar status. Tente novamente.', 'error');
             } else {
                 await openCardTransactionsModal(card); 
                 await renderCards();
@@ -419,7 +444,7 @@ async function openCardTransactionsModal(card) {
 }
 
 function closeCardTransactionsModal() {
-    cardTransactionsModal.style.display = 'none';
+    if (cardTransactionsModal) cardTransactionsModal.style.display = 'none';
 }
 
 
@@ -429,6 +454,11 @@ function closeCardTransactionsModal() {
 
 async function renderCards() {
     if (!currentUserId) return;
+    if (!cardsListElement) { // Adicionado verificação
+        console.error("Elemento cardsListElement não encontrado.");
+        showNotification("Erro: Elementos da lista de cartões não carregados.", "error");
+        return;
+    }
 
     const { data: cards, error } = await supabase
         .from('cartoes_credito')
@@ -449,14 +479,31 @@ async function renderCards() {
 
     cardsListElement.innerHTML = '';
     for (const card of cards) {
+        // --- Cálculo do Limite Comprometido para o card na lista ---
+        // Calcula o período da fatura atual para este cartão
+        const today = new Date();
+        const currentDay = today.getDate();
+        let invoiceStartDate, invoiceEndDate;
+
+        if (currentDay > card.dia_fechamento_fatura) {
+            invoiceStartDate = new Date(today.getFullYear(), today.getMonth(), card.dia_fechamento_fatura + 1);
+            invoiceEndDate = new Date(today.getFullYear(), today.getMonth() + 1, card.dia_fechamento_fatura);
+        } else {
+            invoiceStartDate = new Date(today.getFullYear(), today.getMonth() - 1, card.dia_fechamento_fatura + 1);
+            invoiceEndDate = new Date(today.getFullYear(), today.getMonth(), card.dia_fechamento_fatura);
+        }
+        invoiceStartDate.setDate(Math.min(invoiceStartDate.getDate(), new Date(invoiceStartDate.getFullYear(), invoiceStartDate.getMonth() + 1, 0).getDate()));
+        invoiceEndDate.setDate(Math.min(invoiceEndDate.getDate(), new Date(invoiceEndDate.getFullYear(), invoiceEndDate.getMonth() + 1, 0).getDate()));
+
+
         const { data: creditTransactions, error: transError } = await supabase
             .from('lancamentos')
-            .select('valor, pago')
+            .select('valor, pago, data, is_recorrente_master, recorrente_id, total_parcelas') // Adicionado campos de recorrência/parcelamento
             .eq('user_id', currentUserId)
             .eq('tipo', 'saida')
             .eq('forma_pagamento', 'Credito')
             .eq('cartao_id', card.id)
-            .filter('pago', 'eq', false);
+            .filter('pago', 'eq', false); // Apenas lançamentos não pagos
 
         if (transError) {
             console.error(`Erro ao buscar lançamentos de crédito para o cartão ${card.nome_cartao}:`, transError.message);
@@ -465,11 +512,25 @@ async function renderCards() {
 
         let totalComprometido = 0;
         creditTransactions.forEach(t => {
-            totalComprometido += t.valor;
+            // Se for parcelado, sempre inclui
+            if (t.total_parcelas > 1) {
+                totalComprometido += t.valor;
+            }
+            // Se for recorrente (e não parcelado), inclui APENAS se a data cair na fatura atual
+            else if (t.recorrente_id || t.is_recorrente_master) {
+                const transactionDate = new Date(t.data);
+                if (transactionDate >= invoiceStartDate && transactionDate <= invoiceEndDate) {
+                    totalComprometido += t.valor;
+                }
+            }
+            // Se for um lançamento único (não recorrente, não parcelado), sempre inclui
+            else {
+                totalComprometido += t.valor;
+            }
         });
         
         const limiteDisponivel = card.limite_total - totalComprometido;
-        let committedMessage = "";
+        // --- Fim do Cálculo do Limite Comprometido ---
 
         const cardItem = document.createElement('div');
         cardItem.classList.add('card-item');
@@ -504,8 +565,13 @@ async function renderCards() {
 
     cardsListElement.querySelectorAll('.btn-view-transactions').forEach(button => {
         button.addEventListener('click', (e) => {
-            const cardData = JSON.parse(e.target.dataset.card);
-            openCardTransactionsModal(cardData);
+            try {
+                const cardData = JSON.parse(e.target.dataset.card);
+                openCardTransactionsModal(cardData);
+            } catch (jsonError) {
+                console.error("Erro ao fazer parse do JSON do cartão:", jsonError);
+                showNotification("Erro ao carregar dados do cartão. Tente novamente.", "error");
+            }
         });
     });
 }
@@ -522,6 +588,8 @@ export async function initCartoesPage() {
         await renderCards();
     } else {
         console.error('Usuário não logado para carregar cartões.');
-        cardsListElement.innerHTML = `<p class="no-cards-message">Por favor, faça login para gerenciar seus cartões.</p>`;
+        if (cardsListElement) {
+            cardsListElement.innerHTML = `<p class="no-cards-message">Por favor, faça login para gerenciar seus cartões.</p>`;
+        }
     }
 }
